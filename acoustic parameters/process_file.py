@@ -81,8 +81,8 @@ def process_file(filepath):
     print(f"Frequency parameters: {length(results)}")
 
     # Spectral domain
-    results.append(process_row(amp_range, 'amp_range'))
-    results.append(process_row(amp_std, 'amp_std'))
+    results.append(process_row(amp_range, 'APQ_range'))
+    results.append(process_row(amp_std, 'APQ_std'))
     results.append(process_matrix(msc, 'msc'))
     results.append(process_row(np.array(centroids), 'centroids'))
     results.append(process_row(LTAS, 'LTAS'))
