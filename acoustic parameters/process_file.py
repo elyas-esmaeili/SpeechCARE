@@ -34,7 +34,7 @@ def process_file(filepath):
     msc = compute_msc(data, fs, nfft=512, window_length_ms=window_length_ms, window_step_ms=window_step_ms, num_msc=13)
     centroids = spectral_centriod(data, fs, window_length_ms, window_step_ms)
     LTAS = ltas(data, fs, window_length_ms, window_step_ms)[0]
-    ALPHA_RATIO = alpha_ratio(data, fs, window_length_ms, window_step_ms, (0, 1000), (1000, 5000))
+    ALPHA_RATIO = harmonic_difference(data, fs, window_length_ms, window_step_ms, (0, 1000), (1000, 5000))
     LOG_MEL_SPECTROGRAM = log_mel_spectrogram(data, fs, window_length_ms, window_step_ms, melbands=8, fmin=20, fmax=6500)
     MFCC = mfcc(data, fs, window_length_ms, window_step_ms, melbands=26, lifter=20)[:15]
     LPC = lpc(data, fs, window_length_ms, window_step_ms)
@@ -86,7 +86,7 @@ def process_file(filepath):
     results.append(process_matrix(msc, 'msc'))
     results.append(process_row(np.array(centroids), 'centroids'))
     results.append(process_row(LTAS, 'LTAS'))
-    results.append({'ALPHA RATIO': ALPHA_RATIO})
+    results.append({'HARMONIC DIFFERENCE': ALPHA_RATIO})
     results.append(process_matrix(LOG_MEL_SPECTROGRAM, 'LOG_MEL_SPECTROGRAM'))
     results.append(process_matrix(MFCC, 'MFCC'))
     results.append(process_matrix(LPC, 'LPC'))
