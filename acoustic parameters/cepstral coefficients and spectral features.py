@@ -120,47 +120,8 @@ def ltas(x, fs, window_length_ms, window_step_ms, units='db', graph=False):
 
     return ltas, f
 
-def harmonic_difference(signal, sample_rate, window_length_ms, window_step_ms, n_first_formant, n_second_fromant):
-    # Estimate F0 using Parselmouth
-    frames = frame_signal(signal, sample_rate, window_length_ms, window_step_ms)
-    differences = np.zeros(len(frames))
-    for i, frame in enumerate(frames):
-        snd = parselmouth.Sound(frame, sample_rate)
-        pitch = snd.to_pitch()
-        f0 = pitch.selected_array['frequency']
-        f0 = f0[f0 > 0]  # Remove unvoiced frames
-        estimated_f0 = np.mean(f0)  # Get a stable estimate of F0
-        if math.isnan(estimated_f0):
-            differences[i] = np.nan
-            continue
 
-
-        # Estimate formants using Parselmouth
-        formants = snd.to_formant_burg(max_number_of_formants=5)
-        fn_freq = formants.get_value_at_time(n_second_fromant, snd.duration / 2)  # Get F3 frequency at the midpoint
-
-        # Calculate the spectrum
-        frequencies, spectrum = periodogram(signal, sample_rate)
-
-        # Find harmonic peaks
-        harmonic_freqs = estimated_f0 * np.arange(1, int(sample_rate / (2 * estimated_f0)) + 1)
-        harmonic_amplitudes = np.interp(harmonic_freqs, frequencies, spectrum)
-
-        # Find the peak harmonic amplitude in the vicinity of the third formant
-        harmonic_fn_range = harmonic_amplitudes[(harmonic_freqs >= fn_freq - estimated_f0) & (harmonic_freqs <= fn_freq + estimated_f0)]
-        An_amplitude = np.max(harmonic_fn_range) if len(harmonic_fn_range) > 0 else 0
-
-        # Get the amplitude of H1
-        H1_amplitude = harmonic_amplitudes[n_first_formant]
-
-        # Calculate H1-A3 in dB
-        H1_An_dB = 20 * np.log10(H1_amplitude) - 20 * np.log10(An_amplitude)
-
-        differences[i] =  H1_An_dB
-    return differences
-
-
-def alpha_ratio(data, fs, window_length_ms, window_step_ms, lower_band, higher_band):
+def harmonic_difference(data, fs, window_length_ms, window_step_ms, lower_band, higher_band):
 
     window_length_samples = int(window_length_ms*fs/1000)
     window_step_samples = int(window_step_ms*fs/1000)
